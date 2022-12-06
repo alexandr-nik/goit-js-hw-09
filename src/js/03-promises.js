@@ -21,11 +21,13 @@ refs.form.addEventListener('submit', e => {
 function createPromise({ position, delays }) {
   return new Promise((resolve, reject) => {
     const shouldResolve = Math.random() > 0.3;
-    if (shouldResolve) {
-      resolve({ position, delays });
-    } else {
-      reject({ position, delays });
-    }
+    setInterval(() => {
+      if (shouldResolve) {
+        resolve({ position, delays });
+      } else {
+        reject({ position, delays });
+      }
+    }, delays);
   });
 }
 
@@ -37,28 +39,23 @@ function adoptFormData(formData) {
   return form;
 }
 
-function onRunPromice({ position, delays }) {
-  createPromise({ position, delays })
-    .then(({ position, delays }) =>
-      Notiflix.Notify.success(
-        `✅ Fulfilled promise ${position} in ${delays} ms`
-      )
-    )
-    .catch(({ position, delays }) =>
-      Notiflix.Notify.failure(`❌ Rejected promise ${position} in ${delays} ms`)
-    );
-}
-
 function timeOutForPromice({ delay, amount, step }) {
-  setTimeout(() => {
-    let stepPromice = Number(step);
-    let delays = 0;
-    for (let position = 1; position <= amount; position += 1) {
-      setTimeout(() => {
-        delays += Number(step);
-        onRunPromice({ position, delays });
-      }, stepPromice);
-      stepPromice += Number(step);
-    }
-  }, delay);
+  let delays = Number(delay);
+  const amounts = Number(amount);
+  const steps = Number(step);
+
+  for (let position = 1; position <= amounts; position += 1) {
+    createPromise({ position, delays })
+      .then(({ position, delays }) =>
+        Notiflix.Notify.success(
+          `✅ Fulfilled promise ${position} in ${delays} ms`
+        )
+      )
+      .catch(({ position, delays }) =>
+        Notiflix.Notify.failure(
+          `❌ Rejected promise ${position} in ${delays} ms`
+        )
+      );
+    delays += steps;
+  }
 }
